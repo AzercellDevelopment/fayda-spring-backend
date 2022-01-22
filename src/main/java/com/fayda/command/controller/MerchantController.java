@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -44,6 +45,16 @@ public class MerchantController {
     log.info("Cancelling task");
     final var res = merchantService.cancelTask(UUID.fromString(userId));
     log.info("Finished cancelling task");
+    return ResponseEntity.ok(GenericResponse.success(res));
+  }
+
+  @PostMapping("/complete")
+  public ResponseEntity<GenericResponse<BigDecimal>> completeTask(
+      @RequestParam("merchant_id") UUID merchantId,
+      @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId) {
+    log.info("Completing task");
+    final var res = merchantService.completeTask(UUID.fromString(userId), merchantId);
+    log.info("Finished completion task");
     return ResponseEntity.ok(GenericResponse.success(res));
   }
 }

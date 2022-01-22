@@ -36,11 +36,13 @@ public class MerchantServiceImpl implements MerchantService {
 
   @Override
   public GroupedMerchantResponse getAllMerchants(UUID userId) {
-    final var activeTask = merchantTaskRepository.findFirstByUserIdAndStatus(userId,
+    final var activeTask = merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId,
         MerchantTaskStatuses.ACTIVE);
+    final var completedTask = merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId,
+        MerchantTaskStatuses.COMPLETED);
     final var merchantMap = merchantDefinitionRepository.findAllByIsActiveTrue()
         .stream()
-        .map(mm -> buildResponseDto(mm, activeTask))
+        .map(mm -> buildResponseDto(mm, activeTask, completedTask))
         .collect(groupingBy(MerchantResponseDto::getStatus));
 
     return GroupedMerchantResponse.builder()
@@ -68,7 +70,7 @@ public class MerchantServiceImpl implements MerchantService {
 
   @Override
   public String cancelTask(UUID userId) {
-    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+    merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId, MerchantTaskStatuses.ACTIVE)
         .ifPresent(task -> {
           task.setStatus(MerchantTaskStatuses.CANCELLED);
           task.setEndDate(TimeUtils.now());
@@ -79,7 +81,7 @@ public class MerchantServiceImpl implements MerchantService {
 
   @Override
   public void updateActiveTask(PointsSyncRequestDto requestDto) {
-    merchantTaskRepository.findFirstByUserIdAndStatus(requestDto.getUserId(), MerchantTaskStatuses.ACTIVE)
+    merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(requestDto.getUserId(), MerchantTaskStatuses.ACTIVE)
         .ifPresent(task -> {
           task.setPoints(task.getPoints() + requestDto.getPoints().intValue());
           merchantTaskRepository.save(task);
@@ -88,27 +90,39 @@ public class MerchantServiceImpl implements MerchantService {
 
   @Override
   public BigDecimal completeTask(UUID userId, UUID merchantId) {
-    return null;
+    return merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId, MerchantTaskStatuses.ACTIVE)
+        .filter(task -> task.getDefinition().getId().equals(merchantId))
+        .map(task -> {
+          task.setStatus(MerchantTaskStatuses.COMPLETED);
+          merchantTaskRepository.save(task);
+          return calculateTarif(task.getDefinition(), task).setScale(2, RoundingMode.HALF_DOWN);
+        })
+        .orElse(BigDecimal.ZERO);
   }
 
-  private MerchantResponseDto buildResponseDto(MerchantModel mm, Optional<MerchantTaskModel> activeTask) {
+  private MerchantResponseDto buildResponseDto(MerchantModel mm, Optional<MerchantTaskModel> activeTask, Optional<MerchantTaskModel> completedTask) {
     final var mappedDto = buildNonActiveResponseDto(mm);
     activeTask
+        .or(() -> completedTask)
         .filter(task -> task.getDefinition().getId().equals(mm.getId()))
-        .ifPresent(task -> updateResponseWithActiveTask(mm, mappedDto, task));
+        .ifPresent(task -> updateResponseWithTask(mm, mappedDto, task));
     return mappedDto;
   }
 
-  private void updateResponseWithActiveTask(MerchantModel mm, MerchantResponseDto mappedDto, MerchantTaskModel task) {
-    final var bonusCoef = task.getPoints() / 1000.;
-    var calculatedTarif = mm.getTarifValue().multiply(BigDecimal.valueOf(bonusCoef));
-    calculatedTarif = calculatedTarif.min(mm.getMaxTarif());
+  private void updateResponseWithTask(MerchantModel mm, MerchantResponseDto mappedDto, MerchantTaskModel task) {
+    BigDecimal calculatedTarif = calculateTarif(mm, task);
     final var calculatedTarifString = calculatedTarif.setScale(2, RoundingMode.HALF_DOWN)
         .toString().concat(mm.getTarifText());
     mappedDto.setStartDate(task.getStartDate());
     mappedDto.setStatus(ACTIVE);
     mappedDto.setCalculatedTarif(calculatedTarifString);
     mappedDto.setStepCount(BigInteger.valueOf(task.getPoints()));
+  }
+
+  private BigDecimal calculateTarif(MerchantModel mm, MerchantTaskModel task) {
+    final var bonusCoef = task.getPoints() / 1000.;
+    final var calculatedTarif = mm.getTarifValue().multiply(BigDecimal.valueOf(bonusCoef));
+    return calculatedTarif.min(mm.getMaxTarif());
   }
 
   private MerchantResponseDto buildNonActiveResponseDto(MerchantModel mm) {
@@ -121,11 +135,12 @@ public class MerchantServiceImpl implements MerchantService {
         .longitude(mm.getLongitude())
         .tarif(mm.getTarifValue().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
         .status(NON_ACTIVE)
+        .iconUrl(mm.getIconUrl())
         .build();
   }
 
   private void checkForActiveTasks(UUID userId) {
-    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+    merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId, MerchantTaskStatuses.ACTIVE)
         .ifPresent(task -> {
           throw new GenericError("Already has active task", 400);
         });

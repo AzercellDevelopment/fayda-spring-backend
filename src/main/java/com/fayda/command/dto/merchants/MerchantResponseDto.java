@@ -17,6 +17,7 @@ public class MerchantResponseDto {
   UUID id;
   String name;
   String address;
+  String iconUrl;
   String longitude;
   String latitude;
   String tarif;

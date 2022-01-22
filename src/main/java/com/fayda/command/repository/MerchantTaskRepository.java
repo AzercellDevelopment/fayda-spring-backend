@@ -11,6 +11,6 @@ import java.util.UUID;
 @Repository
 public interface MerchantTaskRepository extends CrudRepository<MerchantTaskModel, UUID> {
 
-  Optional<MerchantTaskModel> findFirstByUserIdAndStatus(UUID userId, MerchantTaskStatuses status);
+  Optional<MerchantTaskModel> findFirstByUserIdAndStatusOrderByStartDateDesc(UUID userId, MerchantTaskStatuses status);
 
 }

@@ -32,5 +32,6 @@ public class MerchantModel {
   String tarifText;
   String longitude;
   String latitude;
+  String iconUrl;
   Boolean isActive;
 }
