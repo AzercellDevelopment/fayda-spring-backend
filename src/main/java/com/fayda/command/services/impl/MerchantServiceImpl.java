@@ -3,6 +3,7 @@ package com.fayda.command.services.impl;
 import com.fayda.command.constants.MerchantTaskStatuses;
 import com.fayda.command.dto.merchants.GroupedMerchantResponse;
 import com.fayda.command.dto.merchants.MerchantResponseDto;
+import com.fayda.command.error.GenericError;
 import com.fayda.command.model.MerchantModel;
 import com.fayda.command.model.MerchantTaskModel;
 import com.fayda.command.repository.MerchantDefinitionRepository;
@@ -45,6 +46,35 @@ public class MerchantServiceImpl implements MerchantService {
         .build();
   }
 
+  @Override
+  public String startTask(UUID userId, UUID merchantId) {
+    checkForActiveTasks(userId);
+
+    final var task = MerchantTaskModel
+        .builder()
+        .userId(userId)
+        .points(0)
+        .definition(MerchantModel.builder().id(merchantId).build())
+        .status(MerchantTaskStatuses.ACTIVE)
+        .build();
+
+    merchantTaskRepository.save(task);
+
+    return "success";
+  }
+
+  private void checkForActiveTasks(UUID userId) {
+    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+        .ifPresent(task -> {
+          throw new GenericError("Already has active task", 400);
+        });
+  }
+
+  @Override
+  public BigDecimal completeTask(UUID userId, UUID merchantId) {
+    return null;
+  }
+
   private MerchantResponseDto buildResponseDto(MerchantModel mm, Optional<MerchantTaskModel> activeTask) {
     final var mappedDto = buildNonActiveResponseDto(mm);
     activeTask
@@ -67,6 +97,7 @@ public class MerchantServiceImpl implements MerchantService {
   private MerchantResponseDto buildNonActiveResponseDto(MerchantModel mm) {
     return MerchantResponseDto
         .builder()
+        .id(mm.getId())
         .address(mm.getAddress())
         .name(mm.getName())
         .latitude(mm.getLatitude())
@@ -74,15 +105,5 @@ public class MerchantServiceImpl implements MerchantService {
         .tarif(mm.getTarifText())
         .status(NON_ACTIVE)
         .build();
-  }
-
-  @Override
-  public void startTask(UUID merchantId) {
-
-  }
-
-  @Override
-  public BigDecimal completeTask(UUID userId, UUID merchantId) {
-    return null;
   }
 }

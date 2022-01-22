@@ -9,7 +9,7 @@ public interface MerchantService {
 
   GroupedMerchantResponse getAllMerchants(UUID userId);
 
-  void startTask(UUID merchantId);
+  String startTask(UUID userId, UUID merchantId);
 
   BigDecimal completeTask(UUID userId, UUID merchantId);
 
