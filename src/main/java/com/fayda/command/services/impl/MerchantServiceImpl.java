@@ -3,6 +3,7 @@ package com.fayda.command.services.impl;
 import com.fayda.command.constants.MerchantTaskStatuses;
 import com.fayda.command.dto.merchants.GroupedMerchantResponse;
 import com.fayda.command.dto.merchants.MerchantResponseDto;
+import com.fayda.command.dto.points.PointsSyncRequestDto;
 import com.fayda.command.error.GenericError;
 import com.fayda.command.model.MerchantModel;
 import com.fayda.command.model.MerchantTaskModel;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,10 +65,12 @@ public class MerchantServiceImpl implements MerchantService {
     return "success";
   }
 
-  private void checkForActiveTasks(UUID userId) {
-    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+  @Override
+  public void updateActiveTask(PointsSyncRequestDto requestDto) {
+    merchantTaskRepository.findFirstByUserIdAndStatus(requestDto.getUserId(), MerchantTaskStatuses.ACTIVE)
         .ifPresent(task -> {
-          throw new GenericError("Already has active task", 400);
+          task.setPoints(task.getPoints() + requestDto.getPoints().intValue());
+          merchantTaskRepository.save(task);
         });
   }
 
@@ -87,7 +91,8 @@ public class MerchantServiceImpl implements MerchantService {
     final var bonusCoef = task.getPoints() / 1000.;
     var calculatedTarif = mm.getTarifValue().multiply(BigDecimal.valueOf(bonusCoef));
     calculatedTarif = calculatedTarif.min(mm.getMaxTarif());
-    final var calculatedTarifString = calculatedTarif.toString().concat("%");
+    final var calculatedTarifString = calculatedTarif.setScale(2, RoundingMode.HALF_DOWN)
+        .toString().concat(mm.getTarifText());
     mappedDto.setStartDate(task.getStartDate());
     mappedDto.setStatus(ACTIVE);
     mappedDto.setCalculatedTarif(calculatedTarifString);
@@ -102,8 +107,15 @@ public class MerchantServiceImpl implements MerchantService {
         .name(mm.getName())
         .latitude(mm.getLatitude())
         .longitude(mm.getLongitude())
-        .tarif(mm.getTarifText())
+        .tarif(mm.getTarifValue().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
         .status(NON_ACTIVE)
         .build();
+  }
+
+  private void checkForActiveTasks(UUID userId) {
+    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+        .ifPresent(task -> {
+          throw new GenericError("Already has active task", 400);
+        });
   }
 }

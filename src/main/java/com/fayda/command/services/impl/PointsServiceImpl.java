@@ -6,6 +6,7 @@ import com.fayda.command.dto.points.PointsSyncRequestDto;
 import com.fayda.command.model.TransactionModel;
 import com.fayda.command.model.UserModel;
 import com.fayda.command.repository.TransactionRepository;
+import com.fayda.command.services.MerchantService;
 import com.fayda.command.services.PointsService;
 import com.fayda.command.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,13 @@ public class PointsServiceImpl implements PointsService {
 
   private final TransactionRepository transactionRepository;
   private final UserService userService;
+  private final MerchantService merchantService;
 
   @Override
   public void syncPoints(PointsSyncRequestDto requestDto) {
     final var user = userService.getUserById(requestDto.getUserId());
     updateBalanceForUser(requestDto, user);
+    merchantService.updateActiveTask(requestDto);
   }
 
   @Override
@@ -39,7 +42,7 @@ public class PointsServiceImpl implements PointsService {
   }
 
   private void updateBalanceForUser(PointsSyncRequestDto requestDto, UserModel user) {
-    user.setBalance(requestDto.getPoints());
+    user.setBalance(user.getBalance().add(requestDto.getPoints()));
     user.setVersion(UUID.randomUUID());
     userService.save(user);
     createAndSaveTransaction(user.getId(), requestDto.getPoints());
