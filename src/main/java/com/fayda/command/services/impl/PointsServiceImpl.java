@@ -26,13 +26,8 @@ public class PointsServiceImpl implements PointsService {
 
   @Override
   public void syncPoints(PointsSyncRequestDto requestDto) {
-    final var hasTransactions = transactionRepository.existsTransactionModelByUserId(requestDto.getUserId());
     final UserModel user = getUser(requestDto.getUserId());
-    if (!hasTransactions && user.getBalance().equals(BigInteger.ZERO)) {
-      user.setBalance(requestDto.getPoints());
-      userRepository.save(user);
-      createAndSaveTransaction(user.getId(), requestDto.getPoints());
-    }
+    updateBalanceForUser(requestDto, user);
   }
 
   @Override
@@ -42,9 +37,15 @@ public class PointsServiceImpl implements PointsService {
   }
 
   private UserModel getUser(UUID userId) {
-    final var user = userRepository.findById(userId)
+    return userRepository.findById(userId)
         .orElseThrow(() -> new GenericError("Customer not found", 399));
-    return user;
+  }
+
+  private void updateBalanceForUser(PointsSyncRequestDto requestDto, UserModel user) {
+    user.setBalance(requestDto.getPoints());
+    user.setVersion(UUID.randomUUID());
+    userRepository.save(user);
+    createAndSaveTransaction(user.getId(), requestDto.getPoints());
   }
 
 

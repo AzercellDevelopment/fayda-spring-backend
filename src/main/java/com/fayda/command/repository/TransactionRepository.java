@@ -8,6 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionModel, UUID> {
-
-  boolean existsTransactionModelByUserId(UUID userId);
 }
