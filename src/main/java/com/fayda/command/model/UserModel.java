@@ -1,8 +1,10 @@
 package com.fayda.command.model;
 
 import com.fayda.command.constants.UserStatus;
+import com.fayda.command.constants.UserTypes;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static javax.persistence.GenerationType.AUTO;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 @Data
 @Entity
@@ -24,10 +27,15 @@ public class UserModel {
   @Id
   @GeneratedValue(strategy = AUTO)
   UUID id;
+  @GeneratedValue(strategy = SEQUENCE)
+  @ColumnDefault("0000")
+  BigInteger refNum;
   String email;
   String password;
   BigInteger balance = BigInteger.ZERO;
   UUID version;
+  @Enumerated(EnumType.STRING)
+  UserTypes type;
   @Enumerated(EnumType.STRING)
   UserStatus status;
   @CreationTimestamp
