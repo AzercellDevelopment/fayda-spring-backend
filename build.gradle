@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.fayda'
-version = '0.0.22'
+version = '0.0.2'
 sourceCompatibility = '11'
 
 configurations {
