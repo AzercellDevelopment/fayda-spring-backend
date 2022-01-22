@@ -1,5 +1,6 @@
 package com.fayda.command.services.impl;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fayda.command.constants.UserStatus;
 import com.fayda.command.constants.UserTypes;
 import com.fayda.command.dto.login.EmailLoginRequestDTO;
@@ -8,13 +9,15 @@ import com.fayda.command.dto.register.RegisterRequestDTO;
 import com.fayda.command.error.GenericError;
 import com.fayda.command.model.UserModel;
 import com.fayda.command.repository.UserRepository;
-import com.fayda.command.services.UserService;
 import com.fayda.command.services.AuthUtils;
+import com.fayda.command.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -22,8 +25,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+  private static final char[] REF_CHARS = {'A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
   private final UserRepository userRepository;
   private final AuthUtils authUtils;
+  private final Random random = new Random();
 
   @Override
   public JwtResponseDTO register(RegisterRequestDTO request) {
@@ -79,10 +84,13 @@ public class UserServiceImpl implements UserService {
   private UserModel saveNewUser(RegisterRequestDTO request) {
     UserModel userModel = UserModel
         .builder()
+        .balance(BigInteger.ZERO)
         .email(request.getEmail())
         .password(authUtils.hash(request.getPassword()))
         .status(UserStatus.ACTIVE)
         .type(UserTypes.CUSTOMER)
+        .version(UUID.randomUUID())
+        .refNum(NanoIdUtils.randomNanoId(random, REF_CHARS, 6))
         .build();
     return userRepository.save(userModel);
   }

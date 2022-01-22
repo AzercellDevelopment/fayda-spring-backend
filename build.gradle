@@ -44,6 +44,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
     implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.4.5'
+    compile 'com.aventrix.jnanoid:jnanoid:2.0.0'
     compile 'org.springframework.boot:spring-boot-starter-log4j2'
     compile 'com.aventrix.jnanoid:jnanoid:2.0.0'
     compile 'io.springfox:springfox-boot-starter:3.0.0'

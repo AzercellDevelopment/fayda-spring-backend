@@ -33,7 +33,9 @@ public class PointsServiceImpl implements PointsService {
   public BalanceDto getBalance(UUID userId) {
     final var user = userService.getUserById(userId);
     return BalanceDto.builder()
-        .balance(user.getBalance()).lastSyncDate(user.getUpdateDate()).build();
+        .balance(user.getBalance()).lastSyncDate(user.getUpdateDate())
+        .refNum(user.getRefNum())
+        .build();
   }
 
   private void updateBalanceForUser(PointsSyncRequestDto requestDto, UserModel user) {
