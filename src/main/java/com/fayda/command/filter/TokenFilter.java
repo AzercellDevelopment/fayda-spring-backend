@@ -61,7 +61,6 @@ public class TokenFilter extends OncePerRequestFilter {
                                            String token) throws IOException, ServletException {
     try {
       String username = jwtUtils.getUsername(token);
-      log.info("Username: {}", username);
       request.setAttribute(JwtUtils.ATTR_USERNAME, username);
       MDC.put("uid", username);
       filterChain.doFilter(request, response);

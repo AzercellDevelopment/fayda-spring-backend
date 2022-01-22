@@ -10,6 +10,7 @@ import com.fayda.command.model.MerchantTaskModel;
 import com.fayda.command.repository.MerchantDefinitionRepository;
 import com.fayda.command.repository.MerchantTaskRepository;
 import com.fayda.command.services.MerchantService;
+import com.fayda.command.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,17 @@ public class MerchantServiceImpl implements MerchantService {
 
     merchantTaskRepository.save(task);
 
+    return "success";
+  }
+
+  @Override
+  public String cancelTask(UUID userId) {
+    merchantTaskRepository.findFirstByUserIdAndStatus(userId, MerchantTaskStatuses.ACTIVE)
+        .ifPresent(task -> {
+          task.setStatus(MerchantTaskStatuses.CANCELLED);
+          task.setEndDate(TimeUtils.now());
+          merchantTaskRepository.save(task);
+        });
     return "success";
   }
 

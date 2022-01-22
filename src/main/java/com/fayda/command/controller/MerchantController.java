@@ -20,7 +20,7 @@ public class MerchantController {
   private final MerchantService merchantService;
 
   @GetMapping("/all")
-  ResponseEntity<GenericResponse<GroupedMerchantResponse>> getAllGrouped(
+  public ResponseEntity<GenericResponse<GroupedMerchantResponse>> getAllGrouped(
       @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId) {
     log.info("Getting all merchants");
     final var res = merchantService.getAllMerchants(UUID.fromString(userId));
@@ -29,12 +29,21 @@ public class MerchantController {
   }
 
   @PostMapping("/start")
-  ResponseEntity<GenericResponse<String>> startTask(
+  public ResponseEntity<GenericResponse<String>> startTask(
       @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId,
       @RequestParam("merchant_id") UUID merchantId) {
     log.info("Starting {} task", merchantId);
     final var res = merchantService.startTask(UUID.fromString(userId), merchantId);
     log.info("Finished {} task", merchantId);
+    return ResponseEntity.ok(GenericResponse.success(res));
+  }
+
+  @DeleteMapping("/cancel")
+  public ResponseEntity<GenericResponse<String>> cancelTask(
+      @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId) {
+    log.info("Cancelling task");
+    final var res = merchantService.cancelTask(UUID.fromString(userId));
+    log.info("Finished cancelling task");
     return ResponseEntity.ok(GenericResponse.success(res));
   }
 }
