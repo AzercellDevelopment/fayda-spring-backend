@@ -7,7 +7,6 @@ plugins {
 group = 'com.fayda'
 version = '0.0.1'
 sourceCompatibility = '11'
-java.runtime.version=11
 
 configurations {
     compileOnly {
