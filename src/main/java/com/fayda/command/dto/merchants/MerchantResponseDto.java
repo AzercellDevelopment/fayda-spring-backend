@@ -1,6 +1,7 @@
 package com.fayda.command.dto.merchants;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -23,6 +24,8 @@ public class MerchantResponseDto {
   String tarif;
   String calculatedTarif;
   String status;
+  @JsonIgnore
+  String type;
   @JsonFormat(pattern = "dd.MM.yyyy HH:mm:ss")
   LocalDateTime startDate;
   BigInteger stepCount;

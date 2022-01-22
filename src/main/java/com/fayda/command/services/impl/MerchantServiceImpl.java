@@ -43,7 +43,7 @@ public class MerchantServiceImpl implements MerchantService {
     final var merchantMap = merchantDefinitionRepository.findAllByIsActiveTrue()
         .stream()
         .map(mm -> buildResponseDto(mm, activeTask, completedTask))
-        .collect(groupingBy(MerchantResponseDto::getStatus));
+        .collect(groupingBy(MerchantResponseDto::getType));
 
     return GroupedMerchantResponse.builder()
         .active(merchantMap.getOrDefault(ACTIVE, Collections.emptyList()))
@@ -114,7 +114,8 @@ public class MerchantServiceImpl implements MerchantService {
     final var calculatedTarifString = calculatedTarif.setScale(2, RoundingMode.HALF_DOWN)
         .toString().concat(mm.getTarifText());
     mappedDto.setStartDate(task.getStartDate());
-    mappedDto.setStatus(ACTIVE);
+    mappedDto.setStatus(task.getStatus().getDisplayName());
+    mappedDto.setType(ACTIVE);
     mappedDto.setCalculatedTarif(calculatedTarifString);
     mappedDto.setStepCount(BigInteger.valueOf(task.getPoints()));
   }
@@ -134,8 +135,8 @@ public class MerchantServiceImpl implements MerchantService {
         .latitude(mm.getLatitude())
         .longitude(mm.getLongitude())
         .tarif(mm.getTarifValue().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
-        .status(NON_ACTIVE)
         .iconUrl(mm.getIconUrl())
+        .type(NON_ACTIVE)
         .build();
   }
 
