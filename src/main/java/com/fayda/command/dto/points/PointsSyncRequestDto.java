@@ -1,5 +1,6 @@
 package com.fayda.command.dto.points;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,5 +17,6 @@ public class PointsSyncRequestDto {
   @NotNull
   BigInteger points;
 
+  @ApiModelProperty(hidden = true)
   UUID userId;
 }

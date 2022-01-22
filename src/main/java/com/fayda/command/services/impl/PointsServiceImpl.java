@@ -32,8 +32,9 @@ public class PointsServiceImpl implements PointsService {
 
   @Override
   public BalanceDto getBalance(UUID userId) {
+    final var user = getUser(userId);
     return BalanceDto.builder()
-        .balance(getUser(userId).getBalance()).build();
+        .balance(user.getBalance()).lastSyncDate(user.getUpdateDate()).build();
   }
 
   private UserModel getUser(UUID userId) {
