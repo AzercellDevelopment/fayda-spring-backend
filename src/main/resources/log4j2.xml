@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                    pattern="%-24d{yyyy-MM-dd HH:mm:ss.SSS} %highlight{%5p}{FATAL=white, ERROR=red, WARN=yellow, INFO=blue, DEBUG=green, TRACE=cyan} %style{%pid}{FG_Magenta}-- [%36X{uid}] --- [%16X{traceId} | %16X{spanId}] --- [%16.16t] %style{%40.40c{1.}}{FG_Cyan} : %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.ibam.loyalty" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

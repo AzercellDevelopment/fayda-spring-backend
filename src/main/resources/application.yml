@@ -1,0 +1,14 @@
+server:
+  port: ${AUTH_PORT:8084}
+  servlet:
+    context-path: /api/v1/auth
+
+spring:
+  application:
+    name: Auth
+  profiles:
+    include: db
+
+secrets:
+  jwt:
+    key: ${JWT_SECRET:Q8Di7/+nCH/V8fQyB7jDZAxQLAos/pmEZw/K1KecaQQ=}
