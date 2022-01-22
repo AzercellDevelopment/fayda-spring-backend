@@ -137,6 +137,7 @@ public class MerchantServiceImpl implements MerchantService {
         .tarif(mm.getTarifValue().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
         .iconUrl(mm.getIconUrl())
         .type(NON_ACTIVE)
+        .maxTarif(mm.getMaxTarif().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
         .build();
   }
 

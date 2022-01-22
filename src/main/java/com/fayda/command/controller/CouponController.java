@@ -21,7 +21,7 @@ public class CouponController {
   private final CouponService couponService;
 
   @GetMapping
-  public ResponseEntity<GenericResponse<List<CouponResponseDto>>> getAllActiveCoupons() {
+  public ResponseEntity<GenericResponse<List<CouponResponseDto>>> buyCoupon() {
     log.info("Getting all coupons");
     final var res = couponService.getAllCoupons();
     log.info("Getting all coupons was successful");
@@ -29,7 +29,7 @@ public class CouponController {
   }
 
   @PostMapping("/buy")
-  public ResponseEntity<GenericResponse<String>> getAllActiveCoupons(
+  public ResponseEntity<GenericResponse<String>> buyCoupon(
       @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId,
       @RequestParam("coupon_id") String couponId) {
     log.info("Buying coupon: {}", couponId);

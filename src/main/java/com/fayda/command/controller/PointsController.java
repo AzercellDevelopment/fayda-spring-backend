@@ -2,6 +2,7 @@ package com.fayda.command.controller;
 
 import com.fayda.command.dto.GenericResponse;
 import com.fayda.command.dto.points.BalanceDto;
+import com.fayda.command.dto.points.HistoryResponseDto;
 import com.fayda.command.dto.points.PointsSyncRequestDto;
 import com.fayda.command.services.PointsService;
 import com.fayda.command.utils.JwtUtils;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -37,4 +39,14 @@ public class PointsController {
     log.info("Sync complete");
     return ResponseEntity.ok(GenericResponse.success("success"));
   }
+
+  @GetMapping("/history")
+  public ResponseEntity<GenericResponse<List<HistoryResponseDto>>> getHistory(
+      @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId) {
+    log.info("Getting history");
+    final var res = pointsService.getHistory(UUID.fromString(userId));
+    log.info("Getting history was successful");
+    return ResponseEntity.ok(GenericResponse.success(res));
+  }
+
 }

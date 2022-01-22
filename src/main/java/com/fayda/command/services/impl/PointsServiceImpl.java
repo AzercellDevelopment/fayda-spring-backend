@@ -2,6 +2,7 @@ package com.fayda.command.services.impl;
 
 import com.fayda.command.constants.TransactionTypes;
 import com.fayda.command.dto.points.BalanceDto;
+import com.fayda.command.dto.points.HistoryResponseDto;
 import com.fayda.command.dto.points.PointsSyncRequestDto;
 import com.fayda.command.model.TransactionModel;
 import com.fayda.command.model.UserModel;
@@ -14,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,6 +42,25 @@ public class PointsServiceImpl implements PointsService {
         .balance(user.getBalance()).lastSyncDate(user.getUpdateDate())
         .refNum(user.getRefNum())
         .build();
+  }
+
+  @Override
+  public void save(TransactionModel transactionModel) {
+    transactionRepository.save(transactionModel);
+  }
+
+  @Override
+  public List<HistoryResponseDto> getHistory(UUID userId) {
+    return transactionRepository.findAllByUserIdAndTypeAndIsActiveTrue(userId, TransactionTypes.COUPON_PURCHASE)
+        .stream()
+        .map(transactionModel -> HistoryResponseDto
+            .builder()
+            .title(transactionModel.getTitle())
+            .iconUrl(transactionModel.getIconUrl())
+            .createDate(transactionModel.getCreateDate())
+            .points(transactionModel.getPoints())
+            .build())
+        .collect(Collectors.toList());
   }
 
   private void updateBalanceForUser(PointsSyncRequestDto requestDto, UserModel user) {

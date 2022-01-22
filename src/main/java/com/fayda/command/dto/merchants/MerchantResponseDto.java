@@ -22,6 +22,7 @@ public class MerchantResponseDto {
   String longitude;
   String latitude;
   String tarif;
+  String maxTarif;
   String calculatedTarif;
   String status;
   @JsonIgnore

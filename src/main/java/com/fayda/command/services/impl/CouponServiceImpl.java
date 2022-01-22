@@ -1,14 +1,17 @@
 package com.fayda.command.services.impl;
 
 import com.fayda.command.constants.CouponCodeStatus;
+import com.fayda.command.constants.TransactionTypes;
 import com.fayda.command.dto.coupon.CouponResponseDto;
 import com.fayda.command.error.GenericError;
 import com.fayda.command.model.CouponCodesModel;
 import com.fayda.command.model.CouponModel;
+import com.fayda.command.model.TransactionModel;
 import com.fayda.command.model.UserModel;
 import com.fayda.command.repository.CouponCodeRepository;
 import com.fayda.command.repository.CouponRepository;
 import com.fayda.command.services.CouponService;
+import com.fayda.command.services.PointsService;
 import com.fayda.command.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ public class CouponServiceImpl implements CouponService {
   private final CouponRepository couponRepository;
   private final CouponCodeRepository couponCodeRepository;
   private final UserService userService;
+  private final PointsService pointsService;
 
   @Override
   public List<CouponResponseDto> getAllCoupons() {
@@ -53,9 +57,23 @@ public class CouponServiceImpl implements CouponService {
 
     checkBalance(couponDefinition, user);
     reserveCoupon(nextCoupon);
+    createAndSaveTransaction(user, couponDefinition);
     updateCustomerBalance(user, couponDefinition);
 
     return nextCoupon.getCode();
+  }
+
+  private void createAndSaveTransaction(UserModel user, CouponModel couponDefinition) {
+    final var transactionModel = TransactionModel
+        .builder()
+        .userId(user.getId())
+        .type(TransactionTypes.COUPON_PURCHASE)
+        .points(couponDefinition.getPrice())
+        .isActive(true)
+        .iconUrl(couponDefinition.getIconUrl())
+        .title(couponDefinition.getTitle())
+        .build();
+    pointsService.save(transactionModel);
   }
 
   private CouponCodesModel checkAndGetCouponCode(String staticId) {
