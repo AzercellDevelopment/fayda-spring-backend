@@ -8,18 +8,19 @@ import com.fayda.command.dto.register.RegisterRequestDTO;
 import com.fayda.command.error.GenericError;
 import com.fayda.command.model.UserModel;
 import com.fayda.command.repository.UserRepository;
-import com.fayda.command.services.AuthService;
+import com.fayda.command.services.UserService;
 import com.fayda.command.services.AuthUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final AuthUtils authUtils;
@@ -45,6 +46,19 @@ public class AuthServiceImpl implements AuthService {
     return userRepository
         .findByEmail(email)
         .orElseThrow(() -> new GenericError("User not found", 404));
+  }
+
+  @Override
+  public UserModel getUserById(UUID id) {
+    log.info("Getting user");
+    return userRepository
+        .findById(id)
+        .orElseThrow(() -> new GenericError("User not found", 404));
+  }
+
+  public void save(UserModel user) {
+    log.info("Updating user");
+    userRepository.save(user);
   }
 
   private void checkPassword(UserModel userModel, EmailLoginRequestDTO req) {

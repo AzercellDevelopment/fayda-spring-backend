@@ -18,6 +18,5 @@ public class EmailLoginRequestDTO {
   @Email
   private String email;
   @NotNull
-  @Size(min = 8)
   private String password;
 }

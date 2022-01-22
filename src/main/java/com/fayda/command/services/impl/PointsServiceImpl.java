@@ -3,12 +3,11 @@ package com.fayda.command.services.impl;
 import com.fayda.command.constants.TransactionTypes;
 import com.fayda.command.dto.points.BalanceDto;
 import com.fayda.command.dto.points.PointsSyncRequestDto;
-import com.fayda.command.error.GenericError;
 import com.fayda.command.model.TransactionModel;
 import com.fayda.command.model.UserModel;
 import com.fayda.command.repository.TransactionRepository;
-import com.fayda.command.repository.UserRepository;
 import com.fayda.command.services.PointsService;
+import com.fayda.command.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,33 +21,27 @@ import java.util.UUID;
 public class PointsServiceImpl implements PointsService {
 
   private final TransactionRepository transactionRepository;
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   @Override
   public void syncPoints(PointsSyncRequestDto requestDto) {
-    final UserModel user = getUser(requestDto.getUserId());
+    final var user = userService.getUserById(requestDto.getUserId());
     updateBalanceForUser(requestDto, user);
   }
 
   @Override
   public BalanceDto getBalance(UUID userId) {
-    final var user = getUser(userId);
+    final var user = userService.getUserById(userId);
     return BalanceDto.builder()
         .balance(user.getBalance()).lastSyncDate(user.getUpdateDate()).build();
-  }
-
-  private UserModel getUser(UUID userId) {
-    return userRepository.findById(userId)
-        .orElseThrow(() -> new GenericError("Customer not found", 399));
   }
 
   private void updateBalanceForUser(PointsSyncRequestDto requestDto, UserModel user) {
     user.setBalance(requestDto.getPoints());
     user.setVersion(UUID.randomUUID());
-    userRepository.save(user);
+    userService.save(user);
     createAndSaveTransaction(user.getId(), requestDto.getPoints());
   }
-
 
   private void createAndSaveTransaction(UUID id, BigInteger points) {
     final var transaction = TransactionModel

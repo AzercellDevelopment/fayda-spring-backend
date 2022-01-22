@@ -5,11 +5,17 @@ import com.fayda.command.dto.register.JwtResponseDTO;
 import com.fayda.command.dto.register.RegisterRequestDTO;
 import com.fayda.command.model.UserModel;
 
-public interface AuthService {
+import java.util.UUID;
+
+public interface UserService {
 
   JwtResponseDTO register(RegisterRequestDTO request);
 
   JwtResponseDTO login(EmailLoginRequestDTO request);
 
   UserModel getUserIfExists(String email);
+
+  UserModel getUserById(UUID id);
+
+  void save(UserModel user);
 }
