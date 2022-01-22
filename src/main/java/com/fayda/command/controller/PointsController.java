@@ -29,11 +29,12 @@ public class PointsController {
   }
 
   @PostMapping("/sync")
-  public void syncPoints(@RequestAttribute(JwtUtils.ATTR_USERNAME) String userId,
-                         @RequestBody PointsSyncRequestDto request) {
+  public ResponseEntity<GenericResponse<String>> syncPoints(@RequestAttribute(JwtUtils.ATTR_USERNAME) String userId,
+                                                            @RequestBody PointsSyncRequestDto request) {
     log.info("Syncing user balance");
     request.setUserId(UUID.fromString(userId));
     pointsService.syncPoints(request);
     log.info("Sync complete");
+    return ResponseEntity.ok(GenericResponse.success("success"));
   }
 }

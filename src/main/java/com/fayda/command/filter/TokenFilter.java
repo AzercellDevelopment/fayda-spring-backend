@@ -28,7 +28,8 @@ public class TokenFilter extends OncePerRequestFilter {
 
   private final JwtUtils jwtUtils;
   private final HandlerExceptionResolver exceptionResolver;
-  private final List<Pattern> requiredPaths = List.of(Pattern.compile("/points/.+"));
+  private final List<Pattern> requiredPaths = List.of(Pattern.compile("/points/.+"), Pattern.compile("/coupons/.+"),
+      Pattern.compile("/merchant/.+"));
 
   public TokenFilter(JwtUtils jwtUtils,
                      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
