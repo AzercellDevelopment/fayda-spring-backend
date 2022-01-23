@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -45,16 +43,17 @@ public class MerchantServiceImpl implements MerchantService {
         .map(mm -> buildResponseDto(mm, activeTask, completedTask))
         .collect(groupingBy(MerchantResponseDto::getType));
 
+    final var nonActiveMerchants = new ArrayList<>(merchantMap.getOrDefault(NON_ACTIVE, Collections.emptyList()));
+    addCompletedToNonActive(completedTask, nonActiveMerchants);
     return GroupedMerchantResponse.builder()
         .active(merchantMap.getOrDefault(ACTIVE, Collections.emptyList()))
-        .nonActive(merchantMap.getOrDefault(NON_ACTIVE, Collections.emptyList()))
+        .nonActive(nonActiveMerchants)
         .build();
   }
 
   @Override
   public String startTask(UUID userId, UUID merchantId) {
     checkForActiveTasks(userId);
-
     final var task = MerchantTaskModel
         .builder()
         .userId(userId)
@@ -62,9 +61,7 @@ public class MerchantServiceImpl implements MerchantService {
         .definition(MerchantModel.builder().id(merchantId).build())
         .status(MerchantTaskStatuses.ACTIVE)
         .build();
-
     merchantTaskRepository.save(task);
-
     return "success";
   }
 
@@ -94,6 +91,7 @@ public class MerchantServiceImpl implements MerchantService {
         .filter(task -> task.getDefinition().getId().equals(merchantId))
         .map(task -> {
           task.setStatus(MerchantTaskStatuses.COMPLETED);
+          task.setEndDate(TimeUtils.now());
           merchantTaskRepository.save(task);
           return calculateTarif(task.getDefinition(), task).setScale(2, RoundingMode.HALF_DOWN);
         })
@@ -147,4 +145,11 @@ public class MerchantServiceImpl implements MerchantService {
           throw new GenericError("Already has active task", 400);
         });
   }
+
+  private void addCompletedToNonActive(Optional<MerchantTaskModel> completedTask, List<MerchantResponseDto> nonActiveList) {
+    completedTask
+        .map(task -> buildNonActiveResponseDto(task.getDefinition()))
+        .ifPresent(nonActiveList::add);
+  }
+
 }

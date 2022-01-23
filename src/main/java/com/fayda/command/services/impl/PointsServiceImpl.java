@@ -58,7 +58,7 @@ public class PointsServiceImpl implements PointsService {
             .title(transactionModel.getTitle())
             .iconUrl(transactionModel.getIconUrl())
             .createDate(transactionModel.getCreateDate())
-            .points(transactionModel.getPoints())
+            .points(transactionModel.getPoints().toString())
             .build())
         .collect(Collectors.toList());
   }

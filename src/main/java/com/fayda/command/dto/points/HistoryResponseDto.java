@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 public class HistoryResponseDto {
   String title;
   String iconUrl;
-  BigInteger points;
+  String points;
   @JsonFormat(pattern = "dd.MM.yyyy HH:mm:ss")
   LocalDateTime createDate;
 }
