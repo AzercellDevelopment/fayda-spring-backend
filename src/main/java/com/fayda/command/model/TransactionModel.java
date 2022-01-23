@@ -26,6 +26,8 @@ public class TransactionModel {
   TransactionTypes type;
   Boolean isActive;
   String title;
+  String subtitle;
+  String description;
   String iconUrl;
   @CreationTimestamp
   LocalDateTime createDate;

@@ -54,9 +54,9 @@ public class CouponServiceImpl implements CouponService {
     final var couponDefinition = checkAndGetCouponDefinition(staticId);
     final var nextCoupon = checkAndGetCouponCode(staticId);
     final var user = userService.getUserById(userId);
-
+    couponDefinition.setSubtitle(nextCoupon.getCode());
     checkBalance(couponDefinition, user);
-    reserveCoupon(nextCoupon);
+    reserveCoupon(nextCoupon, user);
     createAndSaveTransaction(user, couponDefinition);
     updateCustomerBalance(user, couponDefinition);
 
@@ -72,6 +72,8 @@ public class CouponServiceImpl implements CouponService {
         .isActive(true)
         .iconUrl(couponDefinition.getIconUrl())
         .title(couponDefinition.getTitle())
+        .subtitle(couponDefinition.getSubtitle())
+        .description(couponDefinition.getDescription())
         .build();
     pointsService.save(transactionModel);
   }
@@ -93,8 +95,9 @@ public class CouponServiceImpl implements CouponService {
     userService.save(user);
   }
 
-  private void reserveCoupon(CouponCodesModel nextCoupon) {
+  private void reserveCoupon(CouponCodesModel nextCoupon, UserModel user) {
     nextCoupon.setStatus(CouponCodeStatus.BOUGHT);
+    nextCoupon.setOwnerId(user.getId());
     couponCodeRepository.save(nextCoupon);
   }
 

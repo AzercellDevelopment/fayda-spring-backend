@@ -17,7 +17,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthUtilsImpl implements AuthUtils {
 
-  private static final long EXPIRATION_IN_MILLIS = 10800000;
+  private static final long EXPIRATION_IN_MILLIS = 108000000;
   private final PasswordEncoder passwordEncoder;
   @Value("${secrets.jwt.key}")
   private String secretKey;

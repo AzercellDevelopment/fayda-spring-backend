@@ -56,7 +56,10 @@ public class PointsServiceImpl implements PointsService {
         .map(transactionModel -> HistoryResponseDto
             .builder()
             .title(transactionModel.getTitle())
+            .subtitle(transactionModel.getSubtitle())
+            .description(transactionModel.getDescription())
             .iconUrl(transactionModel.getIconUrl())
+            .type(transactionModel.getType())
             .createDate(transactionModel.getCreateDate())
             .points(transactionModel.getPoints().toString())
             .build())

@@ -21,7 +21,7 @@ public class CouponController {
   private final CouponService couponService;
 
   @GetMapping
-  public ResponseEntity<GenericResponse<List<CouponResponseDto>>> buyCoupon() {
+  public ResponseEntity<GenericResponse<List<CouponResponseDto>>> getAll() {
     log.info("Getting all coupons");
     final var res = couponService.getAllCoupons();
     log.info("Getting all coupons was successful");
