@@ -11,8 +11,8 @@ import com.fayda.command.model.MerchantTaskModel;
 import com.fayda.command.model.TransactionModel;
 import com.fayda.command.repository.MerchantDefinitionRepository;
 import com.fayda.command.repository.MerchantTaskRepository;
+import com.fayda.command.repository.TransactionRepository;
 import com.fayda.command.services.MerchantService;
-import com.fayda.command.services.PointsService;
 import com.fayda.command.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class MerchantServiceImpl implements MerchantService {
   public static final String ACTIVE = "active";
   private final MerchantDefinitionRepository merchantDefinitionRepository;
   private final MerchantTaskRepository merchantTaskRepository;
-  private final PointsService pointsService;
+  private final TransactionRepository pointsService;
 
   @Override
   public GroupedMerchantResponse getAllMerchants(UUID userId) {

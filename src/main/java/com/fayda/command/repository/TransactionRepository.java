@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<TransactionModel, UUID> {
-  List<TransactionModel> findAllByUserIdAndTypeAndIsActiveTrue(UUID userId, TransactionTypes couponPurchase);
+  List<TransactionModel> findAllByUserIdAndTypeInAndIsActiveTrue(UUID userId, TransactionTypes... types);
 }

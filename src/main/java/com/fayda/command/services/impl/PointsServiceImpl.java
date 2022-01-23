@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.fayda.command.constants.TransactionTypes.COUPON_PURCHASE;
+import static com.fayda.command.constants.TransactionTypes.MERCHANT_COMPLETE;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -51,7 +54,7 @@ public class PointsServiceImpl implements PointsService {
 
   @Override
   public List<HistoryResponseDto> getHistory(UUID userId) {
-    return transactionRepository.findAllByUserIdAndTypeAndIsActiveTrue(userId, TransactionTypes.COUPON_PURCHASE)
+    return transactionRepository.findAllByUserIdAndTypeInAndIsActiveTrue(userId, COUPON_PURCHASE, MERCHANT_COMPLETE)
         .stream()
         .map(transactionModel -> HistoryResponseDto
             .builder()
