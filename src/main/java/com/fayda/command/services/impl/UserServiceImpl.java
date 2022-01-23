@@ -61,9 +61,16 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new GenericError("User not found", 404));
   }
 
+  @Override
   public void save(UserModel user) {
     log.info("Updating user");
     userRepository.save(user);
+  }
+
+  @Override
+  public UserModel getUserByRefNum(String refNum) {
+    return userRepository.findFirstByRefNum(refNum)
+        .orElseThrow(() -> new GenericError("User not found", 404));
   }
 
   private void checkPassword(UserModel userModel, EmailLoginRequestDTO req) {

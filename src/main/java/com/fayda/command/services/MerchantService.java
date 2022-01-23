@@ -14,7 +14,7 @@ public interface MerchantService {
 
   String cancelTask(UUID userId);
 
-  BigDecimal completeTask(UUID userId, UUID merchantId);
+  BigDecimal completeTask(String userId, UUID merchantId);
 
   void updateActiveTask(PointsSyncRequestDto requestDto);
 

@@ -18,4 +18,6 @@ public interface UserService {
   UserModel getUserById(UUID id);
 
   void save(UserModel user);
+
+  UserModel getUserByRefNum(String refNum);
 }

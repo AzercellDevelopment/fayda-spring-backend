@@ -12,4 +12,5 @@ public interface UserRepository extends CrudRepository<UserModel, UUID> {
 
   Optional<UserModel> findByEmail(String email);
 
+  Optional<UserModel> findFirstByRefNum(String refNum);
 }

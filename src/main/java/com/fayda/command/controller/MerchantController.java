@@ -51,9 +51,9 @@ public class MerchantController {
   @PostMapping("/complete")
   public ResponseEntity<GenericResponse<BigDecimal>> completeTask(
       @RequestParam("merchant_id") UUID merchantId,
-      @RequestAttribute(JwtUtils.ATTR_USERNAME) String userId) {
+      @RequestParam("ref_num") String refNum) {
     log.info("Completing task");
-    final var res = merchantService.completeTask(UUID.fromString(userId), merchantId);
+    final var res = merchantService.completeTask(refNum, merchantId);
     log.info("Finished completion task");
     return ResponseEntity.ok(GenericResponse.success(res));
   }

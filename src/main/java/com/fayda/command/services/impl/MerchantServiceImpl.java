@@ -13,6 +13,7 @@ import com.fayda.command.repository.MerchantDefinitionRepository;
 import com.fayda.command.repository.MerchantTaskRepository;
 import com.fayda.command.repository.TransactionRepository;
 import com.fayda.command.services.MerchantService;
+import com.fayda.command.services.UserService;
 import com.fayda.command.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class MerchantServiceImpl implements MerchantService {
   private final MerchantDefinitionRepository merchantDefinitionRepository;
   private final MerchantTaskRepository merchantTaskRepository;
   private final TransactionRepository pointsService;
+  private final UserService userService;
 
   @Override
   public GroupedMerchantResponse getAllMerchants(UUID userId) {
@@ -90,7 +92,8 @@ public class MerchantServiceImpl implements MerchantService {
   }
 
   @Override
-  public BigDecimal completeTask(UUID userId, UUID merchantId) {
+  public BigDecimal completeTask(String refNum, UUID merchantId) {
+    final var userId = userService.getUserByRefNum(refNum).getId();
     return merchantTaskRepository.findFirstByUserIdAndStatusOrderByStartDateDesc(userId, MerchantTaskStatuses.ACTIVE)
         .filter(task -> task.getDefinition().getId().equals(merchantId))
         .map(task -> {
