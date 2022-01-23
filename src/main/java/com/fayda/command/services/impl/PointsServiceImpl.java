@@ -54,7 +54,8 @@ public class PointsServiceImpl implements PointsService {
 
   @Override
   public List<HistoryResponseDto> getHistory(UUID userId) {
-    return transactionRepository.findAllByUserIdAndTypeInAndIsActiveTrue(userId, COUPON_PURCHASE, MERCHANT_COMPLETE)
+    return transactionRepository.findAllByUserIdAndTypeInAndIsActiveTrueOrderByCreateDateDesc
+        (userId, COUPON_PURCHASE, MERCHANT_COMPLETE)
         .stream()
         .map(transactionModel -> HistoryResponseDto
             .builder()
