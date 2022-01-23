@@ -2,5 +2,5 @@ package com.fayda.command.constants;
 
 public enum TransactionTypes {
   AWARDING,
-  COUPON_PURCHASE
+  MERCHANT_COMPLETE, COUPON_PURCHASE
 }

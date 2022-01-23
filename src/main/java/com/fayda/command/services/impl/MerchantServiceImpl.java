@@ -1,15 +1,18 @@
 package com.fayda.command.services.impl;
 
 import com.fayda.command.constants.MerchantTaskStatuses;
+import com.fayda.command.constants.TransactionTypes;
 import com.fayda.command.dto.merchants.GroupedMerchantResponse;
 import com.fayda.command.dto.merchants.MerchantResponseDto;
 import com.fayda.command.dto.points.PointsSyncRequestDto;
 import com.fayda.command.error.GenericError;
 import com.fayda.command.model.MerchantModel;
 import com.fayda.command.model.MerchantTaskModel;
+import com.fayda.command.model.TransactionModel;
 import com.fayda.command.repository.MerchantDefinitionRepository;
 import com.fayda.command.repository.MerchantTaskRepository;
 import com.fayda.command.services.MerchantService;
+import com.fayda.command.services.PointsService;
 import com.fayda.command.utils.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +34,7 @@ public class MerchantServiceImpl implements MerchantService {
   public static final String ACTIVE = "active";
   private final MerchantDefinitionRepository merchantDefinitionRepository;
   private final MerchantTaskRepository merchantTaskRepository;
+  private final PointsService pointsService;
 
   @Override
   public GroupedMerchantResponse getAllMerchants(UUID userId) {
@@ -93,9 +97,25 @@ public class MerchantServiceImpl implements MerchantService {
           task.setStatus(MerchantTaskStatuses.COMPLETED);
           task.setEndDate(TimeUtils.now());
           merchantTaskRepository.save(task);
-          return calculateTarif(task.getDefinition(), task).setScale(2, RoundingMode.HALF_DOWN);
+          final var calcTarif = calculateTarif(task.getDefinition(), task).setScale(2, RoundingMode.HALF_DOWN);
+          createAndSaveTransaction(task, calcTarif);
+          return calcTarif;
         })
         .orElse(BigDecimal.ZERO);
+  }
+
+  private void createAndSaveTransaction(MerchantTaskModel task, BigDecimal calcTarif) {
+    final var transactionModel = TransactionModel
+        .builder()
+        .title(task.getDefinition().getName())
+        .iconUrl(task.getDefinition().getIconUrl())
+        .isActive(true)
+        .type(TransactionTypes.MERCHANT_COMPLETE)
+        .subtitle(calcTarif.toString().concat("%"))
+        .points(BigInteger.valueOf(task.getPoints()))
+        .userId(task.getUserId())
+        .build();
+    pointsService.save(transactionModel);
   }
 
   private MerchantResponseDto buildResponseDto(MerchantModel mm, Optional<MerchantTaskModel> activeTask, Optional<MerchantTaskModel> completedTask) {
