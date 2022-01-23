@@ -29,6 +29,7 @@ public class UserModel {
   String refNum;
   String email;
   String password;
+  @Builder.Default
   BigInteger balance = BigInteger.ZERO;
   UUID version;
   @Enumerated(EnumType.STRING)
