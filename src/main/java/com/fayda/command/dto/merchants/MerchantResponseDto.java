@@ -19,8 +19,8 @@ public class MerchantResponseDto {
   String name;
   String address;
   String iconUrl;
-  String longitude;
-  String latitude;
+  Double longitude;
+  Double latitude;
   String tarif;
   String maxTarif;
   String calculatedTarif;

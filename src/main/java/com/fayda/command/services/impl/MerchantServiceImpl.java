@@ -44,7 +44,7 @@ public class MerchantServiceImpl implements MerchantService {
         .collect(groupingBy(MerchantResponseDto::getType));
 
     final var nonActiveMerchants = new ArrayList<>(merchantMap.getOrDefault(NON_ACTIVE, Collections.emptyList()));
-    addCompletedToNonActive(completedTask, nonActiveMerchants);
+    addCompletedToNonActive(completedTask.filter(ct -> activeTask.isEmpty()), nonActiveMerchants);
     return GroupedMerchantResponse.builder()
         .active(merchantMap.getOrDefault(ACTIVE, Collections.emptyList()))
         .nonActive(nonActiveMerchants)
@@ -130,8 +130,8 @@ public class MerchantServiceImpl implements MerchantService {
         .id(mm.getId())
         .address(mm.getAddress())
         .name(mm.getName())
-        .latitude(mm.getLatitude())
-        .longitude(mm.getLongitude())
+        .latitude(Double.valueOf(mm.getLatitude()))
+        .longitude(Double.valueOf(mm.getLongitude()))
         .tarif(mm.getTarifValue().setScale(2, RoundingMode.HALF_DOWN).toString().concat(mm.getTarifText()))
         .iconUrl(mm.getIconUrl())
         .type(NON_ACTIVE)
